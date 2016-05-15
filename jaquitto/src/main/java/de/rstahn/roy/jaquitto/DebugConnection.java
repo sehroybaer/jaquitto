@@ -1,6 +1,13 @@
 package de.rstahn.roy.jaquitto;
 
 public class DebugConnection implements Connection {
+	final private String name;
+	final private String urlString;
+	
+	public DebugConnection(String name, String urlString) {
+		this.name = name;
+		this.urlString = urlString;
+	}
 
 	@Override
 	public void connect() {
@@ -29,12 +36,12 @@ public class DebugConnection implements Connection {
 
 	@Override
 	public String getServerUrlAsString() {
-		return "tcp://localhost:1883";
+		return urlString;
 	}
 
 	@Override
 	public String getName() {
-		return "Debug";
+		return name;
 	}
 
 }

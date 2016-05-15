@@ -1,5 +1,7 @@
 package de.rstahn.roy.jaquitto;
 
+import java.util.Map;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -58,7 +60,16 @@ public class MainWindow {
 		if(tabFolder == null) {
 			return;
 		}
-		DebugConnection connection = new DebugConnection();
+		CreateConnectionDialog dialog = new CreateConnectionDialog(shell, SWT.APPLICATION_MODAL);
+		Map<String, String> result = dialog.open();
+		if(result.isEmpty()) {
+			System.out.println("Result was emtpy. Dialog canceled.");
+		} else {
+			System.out.println("Connection created.");
+			System.out.println("  name = " + result.get("name"));
+			System.out.println("  url  = " + result.get("url"));
+		}
+		DebugConnection connection = new DebugConnection(result.get("name"), result.get("url"));
 		final TabItem item = new TabItem(tabFolder, SWT.NONE);
 		item.setText(connection.getName());
 		Composite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
