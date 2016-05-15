@@ -8,7 +8,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -52,23 +51,20 @@ public class MainWindow {
 			public void widgetSelected(SelectionEvent e) {
 				createConnectionTab();
 			}
-		});
-		//shell.pack();
-		
+		});		
 	}
 	
 	private void createConnectionTab() {
 		if(tabFolder == null) {
 			return;
 		}
+		DebugConnection connection = new DebugConnection();
 		final TabItem item = new TabItem(tabFolder, SWT.NONE);
 		item.setText("Connection B");
-		Composite page = new Composite(tabFolder, SWT.NONE);
-		page.setLayout(new GridLayout());
-		final Label label = new Label(page, SWT.NONE);
-		label.setText("Label in tab area");
+		Composite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
 		item.setControl(page);
-		tabFolder.pack();		
+		tabFolder.pack();
+		shell.pack();
 	}
 
 }
