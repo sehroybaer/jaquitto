@@ -8,6 +8,8 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        System.out.println( "Jaquitto" );
+        MainWindow mainWindow = new MainWindow();
+        mainWindow.open();       
     }
 }
