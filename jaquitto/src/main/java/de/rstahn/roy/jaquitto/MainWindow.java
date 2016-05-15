@@ -64,6 +64,7 @@ public class MainWindow {
 		Map<String, String> result = dialog.open();
 		if(result.isEmpty()) {
 			System.out.println("Result was emtpy. Dialog canceled.");
+			return;
 		} else {
 			System.out.println("Connection created.");
 			System.out.println("  name = " + result.get("name"));
