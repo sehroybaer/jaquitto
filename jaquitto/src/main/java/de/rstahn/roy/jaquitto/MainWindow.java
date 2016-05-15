@@ -3,6 +3,8 @@ package de.rstahn.roy.jaquitto;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -11,12 +13,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 
 public class MainWindow {
 	private Shell shell;
-	private TabFolder tabFolder;
+	private CTabFolder tabFolder;
 	
 	public void open() {
 		Display display = new Display(); //Display.getDefault();
@@ -46,7 +46,7 @@ public class MainWindow {
 		shell.setLayout(new GridLayout());
 		Button someButton = new Button(shell, SWT.PUSH);
 		someButton.setText("New Connection");
-		tabFolder = new TabFolder (shell, SWT.BORDER);
+		tabFolder = new CTabFolder (shell, SWT.BORDER);
 		
 		someButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -71,10 +71,13 @@ public class MainWindow {
 			System.out.println("  url  = " + result.get("url"));
 		}
 		DebugConnection connection = new DebugConnection(result.get("name"), result.get("url"));
-		final TabItem item = new TabItem(tabFolder, SWT.NONE);
+		final CTabItem item = new CTabItem(tabFolder, SWT.CLOSE);
 		item.setText(connection.getName());
 		Composite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
+		page.pack();
 		item.setControl(page);
+		item.addDisposeListener(new TabDisposeListener(connection));
+		tabFolder.setSelection(item);
 		tabFolder.pack();
 		shell.pack();
 	}
