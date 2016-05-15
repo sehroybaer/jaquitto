@@ -6,4 +6,6 @@ public interface Connection {
 	void publish(String topic, String message);
 	void subscribe(String topic);
 	void unsubscribe(String topic);
+	String getServerUrlAsString();
+	String getName();
 }

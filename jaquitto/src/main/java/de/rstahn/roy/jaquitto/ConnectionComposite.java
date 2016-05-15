@@ -20,7 +20,7 @@ public class ConnectionComposite extends Composite{
 		
 		final Label lblUrl = new Label(this, SWT.NONE);
 		lblUrl.setBounds(10, 10, 300, 15);
-		lblUrl.setText("tcp://localhost:1883");
+		lblUrl.setText(connection.getServerUrlAsString());
 		
 		final Button btnConnect = new Button(this, SWT.NONE);
 
@@ -103,6 +103,7 @@ public class ConnectionComposite extends Composite{
 				btnPublish.setEnabled(false);
 				btnSubscribe.setEnabled(false);
 				btnUnsubscribe.setEnabled(false);
+				subscriptions.removeAll();
 			}
 		});
 		

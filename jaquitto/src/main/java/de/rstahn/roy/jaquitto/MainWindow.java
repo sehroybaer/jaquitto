@@ -60,7 +60,7 @@ public class MainWindow {
 		}
 		DebugConnection connection = new DebugConnection();
 		final TabItem item = new TabItem(tabFolder, SWT.NONE);
-		item.setText("Connection B");
+		item.setText(connection.getName());
 		Composite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
 		item.setControl(page);
 		tabFolder.pack();

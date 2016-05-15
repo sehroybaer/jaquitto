@@ -27,4 +27,14 @@ public class DebugConnection implements Connection {
 		System.out.println("Topic " + topic + " unsubscribed.");
 	}
 
+	@Override
+	public String getServerUrlAsString() {
+		return "tcp://localhost:1883";
+	}
+
+	@Override
+	public String getName() {
+		return "Debug";
+	}
+
 }
