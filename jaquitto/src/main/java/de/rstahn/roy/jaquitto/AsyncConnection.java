@@ -13,12 +13,12 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 public class AsyncConnection implements Connection {
 	private MqttConnectOptions opt;
 	private final IMqttAsyncClient client;
-	
+
 	// Inner ActionListener classes
 	public class ConnectActionListener implements IMqttActionListener {
-		
+
 		private final ActionResult actionResult;
-		
+
 		public ConnectActionListener(ActionResult actionResult) {
 			this.actionResult = actionResult;
 		}
@@ -29,14 +29,14 @@ public class AsyncConnection implements Connection {
 		}
 
 		@Override
-		public void onSuccess(IMqttToken arg0) {
-			actionResult.connected();			
+		public void onSuccess(IMqttToken token) {
+			actionResult.connected();
 		}		
 	}
-	
+
 	public class DisconnectActionListener implements IMqttActionListener {
 		private final ActionResult actionResult;
-		
+
 		public DisconnectActionListener(ActionResult actionResult) {
 			this.actionResult = actionResult;
 		}
@@ -51,15 +51,15 @@ public class AsyncConnection implements Connection {
 			actionResult.disconnected();			
 		}		
 	}
-	
+
 	public class PublishActionListener implements IMqttActionListener {
 
 		private final ActionResult actionResult;
-		
+
 		public PublishActionListener(ActionResult actionResult) {
 			this.actionResult = actionResult;
 		}
-		
+
 		@Override
 		public void onFailure(IMqttToken token, Throwable cause) {			
 			String topic = packTopics(token.getTopics());
@@ -72,11 +72,11 @@ public class AsyncConnection implements Connection {
 			actionResult.published(topic);		
 		}		
 	}
-	
+
 	public class SubscribeActionListener implements IMqttActionListener {
-		
+
 		private final ActionResult actionResult;
-		
+
 		public SubscribeActionListener(ActionResult actionResult) {
 			this.actionResult = actionResult;
 		}
@@ -93,11 +93,11 @@ public class AsyncConnection implements Connection {
 			actionResult.subscribed(topic);			
 		}		
 	}
-	
+
 	public class UnsubscribeActionListener implements IMqttActionListener {
-		
+
 		private final ActionResult actionResult;
-		
+
 		public UnsubscribeActionListener(ActionResult actionResult) {
 			this.actionResult = actionResult;
 		}
@@ -114,9 +114,9 @@ public class AsyncConnection implements Connection {
 			actionResult.unsubscribed(topic);			
 		}		
 	}
-	
+
 	// Definition of AsyncConnection
-	
+
 	public AsyncConnection(IMqttAsyncClient client, MqttConnectOptions conOpts) {
 		this.client = client;
 		if(conOpts == null) {
@@ -125,7 +125,7 @@ public class AsyncConnection implements Connection {
 			this.opt = conOpts;
 		}
 	}
-	
+
 	public static String packTopics(String[] topics) {
 		StringBuilder builder = new StringBuilder();
 		if(topics.length == 0) {
@@ -140,15 +140,15 @@ public class AsyncConnection implements Connection {
 		return builder.toString();			
 	}
 
-	
+
 	// Implementation of Connection interface
-	
+
 	@Override
 	public void setConnectionCallback(ConnectionEvents connectionEvents) {
 		ConnectionCallback callback = new ConnectionCallback(connectionEvents);
 		client.setCallback(callback);
 	}
-	
+
 	@Override
 	public void connect(ActionResult actionResult) {
 		try {
@@ -161,17 +161,19 @@ public class AsyncConnection implements Connection {
 			e.printStackTrace();
 		}		
 	}
-	
+
 	@Override
 	public void disconnect(ActionResult actionResult) {
 		try {
-			client.disconnect(null, new DisconnectActionListener(actionResult));
+			if(client.isConnected()) {
+				client.disconnect(null, new DisconnectActionListener(actionResult));
+			}
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
-	
+
 	@Override
 	public void publish(String topic, String message, int qos, ActionResult actionResult) {
 		MqttMessage msg = new MqttMessage(message.getBytes());
@@ -186,7 +188,7 @@ public class AsyncConnection implements Connection {
 			e.printStackTrace();
 		} 		
 	}
-	
+
 	@Override
 	public void subscribe(String topic, int qos, ActionResult actionResult) {
 		try {
@@ -196,7 +198,7 @@ public class AsyncConnection implements Connection {
 			e.printStackTrace();
 		}		
 	}
-	
+
 	@Override
 	public void unsubscribe(String topic, ActionResult actionResult) {
 		try {
@@ -206,17 +208,17 @@ public class AsyncConnection implements Connection {
 			e.printStackTrace();
 		}		
 	}
-	
+
 	@Override
 	public String getServerUrlAsString() {
 		return client.getServerURI();
 	}
-	
+
 	@Override
 	public String getName() {
 		return client.getClientId();
 	}
-	
+
 	public static AsyncConnection createDefaultAsyncConnection(String server, String clientId) {
 		AsyncConnection connection = null;
 		try {
@@ -227,7 +229,7 @@ public class AsyncConnection implements Connection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return connection;
 	}
 

@@ -88,6 +88,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		btnConnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				System.out.println("connect() called from thread: " + Thread.currentThread().getId());
 				con.connect(instance);
 				btnConnect.setEnabled(false);
 				btnDisconnect.setEnabled(true);
@@ -151,69 +152,181 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 
 	}
 
+	// ActionResult interface implementation
+	// all methods may be called from a non UI thread
+	
 	@Override
 	public void connected() {
-		messages.add("Connected.");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Connected.");					
+				}				
+			}			
+		});			
 	}
 
+	/**
+	 * Possibly called from a different thread then the UI thread.
+	 */
 	@Override
 	public void connectFailed(String cause) {
-		messages.add("Connecting failed: " + cause);		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable () {
+			@Override
+			public void run () {
+				if (!instance.isDisposed()) {
+					messages.add("Connecting failed: " + cause);
+				}
+			}
+		});		
 	}
 
 	@Override
 	public void disconnected() {
-		messages.add("Disconnected.");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Disconnected.");					
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void disconnectedFailed(String cause) {
-		messages.add("Disconnecting failed: " + cause);		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Disconnecting failed: " + cause);				
+				}				
+			}			
+		});			
 	}
 
 	@Override
 	public void subscribed(String topic) {
-		messages.add("Subscribed to topic " + topic);		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Subscribed to topic " + topic);				
+				}				
+			}			
+		});	
 	}
 
 	@Override
 	public void subscribeFailed(String topic, String cause) {
-		messages.add("Subscripting failed to topic " + topic + "[" + cause + "]");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Subscripting failed to topic " + topic + "[" + cause + "]");				
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void unsubscribed(String topic) {
-		messages.add("Topic " + topic + "unsubscribed.");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Topic " + topic + "unsubscribed.");			
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void unsubscribeFailed(String topic, String cause) {
-		messages.add("Unsubscribing to topic " + topic + " failed! [" + cause + "]");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Unsubscribing to topic " + topic + " failed! [" + cause + "]");				
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void published(String topic) {
-		messages.add("Published to topic " + topic);		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Published to topic " + topic);			
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void publishFailed(String topic, String cause) {
-		messages.add("Publishing to topic " + topic + " failed! [" + cause + "]");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Publishing to topic " + topic + " failed! [" + cause + "]");			
+				}				
+			}			
+		});		
 	}
 
-	// ConnectionEvents implementation:
+	// ConnectionEvents implementation
+	// all methods may be called from a non UI thread
+	
 	@Override
 	public void connectionLost(String cause) {
-		messages.add("Connection lost! [" + cause + "]");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Connection lost! [" + cause + "]");			
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void deliveryComplete(String topic, String message) {
-		messages.add(message + " to topic " + topic + " was delivered.");		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add(message + " to topic " + topic + " was delivered.");				
+				}				
+			}			
+		});		
 	}
 
 	@Override
 	public void messageArrived(String topic, String message) {
-		messages.add("Message -" + message + "- arrived to topic " + topic);		
+		final ConnectionComposite instance = this;
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!instance.isDisposed()) {
+					messages.add("Message -" + message + "- arrived to topic " + topic);			
+				}				
+			}			
+		});		
 	}
 }
