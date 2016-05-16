@@ -13,13 +13,7 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 public class AsyncConnection implements Connection {
 	private MqttConnectOptions opt;
 	private final IMqttAsyncClient client;
-	private IMqttActionListener connectActionListener;
-	private IMqttActionListener disconnectActionListener;
-	private IMqttActionListener publishActionListener;
-	private IMqttActionListener subscribeActionListener;
-	private IMqttActionListener unsubscribeActionListener;
 	private MqttCallback callback;
-	private final ActionResult actionResult;
 	
 	public class ConnectActionListener implements IMqttActionListener {
 		
@@ -121,14 +115,13 @@ public class AsyncConnection implements Connection {
 		}		
 	}
 	
-	public AsyncConnection(IMqttAsyncClient client, MqttConnectOptions conOpts, ActionResult actionResult) {
+	public AsyncConnection(IMqttAsyncClient client, MqttConnectOptions conOpts) {
 		this.client = client;
 		if(conOpts == null) {
 			this.opt = new MqttConnectOptions();
 		} else {
 			this.opt = conOpts;
 		}
-		this.actionResult = actionResult;
 	}	
 	
 	public static String packTopics(String[] topics) {
@@ -148,7 +141,7 @@ public class AsyncConnection implements Connection {
 	@Override
 	public void connect(ActionResult actionResult) {
 		try {
-			client.connect(opt, null, connectActionListener);
+			client.connect(opt, null, new ConnectActionListener(actionResult));
 		} catch (MqttSecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -161,7 +154,7 @@ public class AsyncConnection implements Connection {
 	@Override
 	public void disconnect(ActionResult actionResult) {
 		try {
-			client.disconnect(null, disconnectActionListener);
+			client.disconnect(null, new DisconnectActionListener(actionResult));
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -173,7 +166,7 @@ public class AsyncConnection implements Connection {
 		MqttMessage msg = new MqttMessage(message.getBytes());
 		msg.setQos(qos);
 		try {
-			client.publish(topic, msg, null, publishActionListener);
+			client.publish(topic, msg, null, new PublishActionListener(actionResult));
 		} catch (MqttPersistenceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,7 +179,7 @@ public class AsyncConnection implements Connection {
 	@Override
 	public void subscribe(String topic, int qos, ActionResult actionResult) {
 		try {
-			client.subscribe(topic, qos, null, subscribeActionListener);
+			client.subscribe(topic, qos, null, new SubscribeActionListener(actionResult));
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -196,7 +189,7 @@ public class AsyncConnection implements Connection {
 	@Override
 	public void unsubscribe(String topic, ActionResult actionResult) {
 		try {
-			client.unsubscribe(topic, null, unsubscribeActionListener);
+			client.unsubscribe(topic, null, new UnsubscribeActionListener(actionResult));
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
