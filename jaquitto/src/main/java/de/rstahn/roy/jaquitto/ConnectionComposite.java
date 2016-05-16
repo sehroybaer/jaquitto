@@ -15,113 +15,106 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 	private Text txtPublishTopic;
 	private Text txtPublishPayload;
 	private final List messages;
-	
+	private final Button btnConnect;
+	private final Button btnDisconnect;
+	private final Button btnPublish;
+	private final Button btnSubscribe;
+	private final Button btnUnsubscribe;
+	private final List subscriptions;
+
 	public ConnectionComposite(Composite parent, int style, Connection connection) {
 		super(parent, style);
-		
+
 		final Label lblUrl = new Label(this, SWT.NONE);
 		lblUrl.setBounds(10, 10, 300, 15);
 		lblUrl.setText(connection.getServerUrlAsString());
-		
-		final Button btnConnect = new Button(this, SWT.NONE);
+
+		btnConnect = new Button(this, SWT.NONE);
 
 		btnConnect.setBounds(10, 38, 75, 25);
 		btnConnect.setText("Connect");
-		
-		final Button btnDisconnect = new Button(this, SWT.NONE);
+
+		btnDisconnect = new Button(this, SWT.NONE);
 		btnDisconnect.setEnabled(false);
 
 		btnDisconnect.setBounds(102, 38, 75, 25);
 		btnDisconnect.setText("Disconnect");
-		
-		final Button btnSubscribe = new Button(this, SWT.NONE);
+
+		btnSubscribe = new Button(this, SWT.NONE);
 
 		btnSubscribe.setEnabled(false);
 		btnSubscribe.setBounds(237, 38, 75, 25);
 		btnSubscribe.setText("Subscribe");
-		
-		final Button btnUnsubscribe = new Button(this, SWT.NONE);
+
+		btnUnsubscribe = new Button(this, SWT.NONE);
 
 		btnUnsubscribe.setEnabled(false);
 		btnUnsubscribe.setBounds(237, 69, 75, 25);
 		btnUnsubscribe.setText("Unsubscribe");
-		
-		final Button btnPublish = new Button(this, SWT.NONE);
+
+		btnPublish = new Button(this, SWT.NONE);
 
 		btnPublish.setEnabled(false);
 		btnPublish.setBounds(237, 117, 75, 25);
 		btnPublish.setText("Publish");
-		
+
 		txtSubscibeTopic = new Text(this, SWT.BORDER);
 		txtSubscibeTopic.setBounds(321, 40, 119, 21);
-		
+
 		final Label lblSubscribeTopic = new Label(this, SWT.NONE);
 		lblSubscribeTopic.setBounds(321, 20, 55, 15);
 		lblSubscribeTopic.setText("Topic:");
-		
-		final List subscriptions = new List(this, SWT.BORDER);
+
+		subscriptions = new List(this, SWT.BORDER);
 		subscriptions.setBounds(321, 67, 119, 228);
-		
+
 		messages = new List(this, SWT.BORDER);
 		messages.setBounds(10, 163, 302, 132);
-		
+
 		final Label lblMessages = new Label(this, SWT.NONE);
 		lblMessages.setBounds(10, 146, 55, 15);
 		lblMessages.setText("Messages:");
-		
+
 		txtPublishTopic = new Text(this, SWT.BORDER);
 		txtPublishTopic.setBounds(10, 119, 76, 21);
-		
+
 		txtPublishPayload = new Text(this, SWT.BORDER);
 		txtPublishPayload.setBounds(102, 119, 129, 21);
-		
+
 		final Label lblPublishTopic = new Label(this, SWT.NONE);
 		lblPublishTopic.setBounds(10, 98, 55, 15);
 		lblPublishTopic.setText("Topic:");
-		
+
 		final Label lblPayload = new Label(this, SWT.NONE);
 		lblPayload.setBounds(102, 98, 55, 15);
 		lblPayload.setText("Payload:");
-		
+
 		final Connection con = connection;
 		final ConnectionComposite instance = this;
 		btnConnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println("connect() called from thread: " + Thread.currentThread().getId());
 				con.connect(instance);
-				btnConnect.setEnabled(false);
-				btnDisconnect.setEnabled(true);
-				btnPublish.setEnabled(true);
-				btnSubscribe.setEnabled(true);
 			}
 		});
-		
+
 		btnDisconnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				con.disconnect(instance);
-				btnConnect.setEnabled(true);
-				btnDisconnect.setEnabled(false);
-				btnPublish.setEnabled(false);
-				btnSubscribe.setEnabled(false);
-				btnUnsubscribe.setEnabled(false);
-				subscriptions.removeAll();
 			}
 		});
-		
+
 		btnSubscribe.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				final String topic = txtSubscibeTopic.getText();
 				if(!topic.isEmpty()) {
 					con.subscribe(topic, 1, instance);
-					subscriptions.add(topic);
-					btnUnsubscribe.setEnabled(true);
 				}
 			}
 		});
-		
+
 		btnUnsubscribe.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -132,13 +125,9 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 				int selection = subscriptions.getSelectionIndex();
 				final String topic = subscriptions.getItem(selection);
 				con.unsubscribe(topic, instance);
-				subscriptions.remove(selection);
-				if(subscriptions.getItemCount() == 0) {
-					btnUnsubscribe.setEnabled(false);
-				}
 			}
 		});
-		
+
 		btnPublish.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -154,7 +143,12 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 
 	// ActionResult interface implementation
 	// all methods may be called from a non UI thread
-	
+
+	/**
+	 * After the connection is successfully established
+	 * this method will should be called.
+	 * The caller may reside on a different thread.
+	 */
 	@Override
 	public void connected() {
 		final ConnectionComposite instance = this;
@@ -162,14 +156,19 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Connected.");					
+					messages.add("Connected.");
+					btnConnect.setEnabled(false);
+					btnDisconnect.setEnabled(true);
+					btnPublish.setEnabled(true);
+					btnSubscribe.setEnabled(true);
 				}				
 			}			
 		});			
 	}
 
 	/**
-	 * Possibly called from a different thread then the UI thread.
+	 * When a connection can't be established this method should be called. 
+	 * The caller may reside on a different thread.
 	 */
 	@Override
 	public void connectFailed(String cause) {
@@ -184,6 +183,10 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		});		
 	}
 
+	/**
+	 * When the connection was separated this method should be called.
+	 * The caller may reside on a different thread.
+	 */
 	@Override
 	public void disconnected() {
 		final ConnectionComposite instance = this;
@@ -191,12 +194,23 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Disconnected.");					
+					messages.add("Disconnected.");
+					btnConnect.setEnabled(true);
+					btnDisconnect.setEnabled(false);
+					btnPublish.setEnabled(false);
+					btnSubscribe.setEnabled(false);
+					btnUnsubscribe.setEnabled(false);
+					subscriptions.removeAll();
 				}				
 			}			
 		});		
 	}
 
+	/**
+	 * When the connection couldn't be separated this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param cause of the failure.
+	 */
 	@Override
 	public void disconnectedFailed(String cause) {
 		final ConnectionComposite instance = this;
@@ -210,6 +224,11 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		});			
 	}
 
+	/**
+	 * When the subscription to a topic was successful this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param topic of the subscription
+	 */
 	@Override
 	public void subscribed(String topic) {
 		final ConnectionComposite instance = this;
@@ -217,12 +236,20 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Subscribed to topic " + topic);				
+					messages.add("Subscribed to topic " + topic);
+					subscriptions.add(topic);
+					btnUnsubscribe.setEnabled(true);
 				}				
 			}			
 		});	
 	}
 
+	/**
+	 * When the subscription to a topic failed this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param topic of subscription
+	 * @param cause of failure
+	 */
 	@Override
 	public void subscribeFailed(String topic, String cause) {
 		final ConnectionComposite instance = this;
@@ -236,6 +263,11 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		});		
 	}
 
+	/**
+	 * When unsubscribing from a topic was successful this method should be called.
+	 * The caller may reside on a different thread. 
+	 * @param topic to unsubscribe from
+	 */
 	@Override
 	public void unsubscribed(String topic) {
 		final ConnectionComposite instance = this;
@@ -243,12 +275,22 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Topic " + topic + "unsubscribed.");			
+					messages.add("Topic " + topic + "unsubscribed.");
+					subscriptions.remove(topic);
+					if(subscriptions.getItemCount() == 0) {
+						btnUnsubscribe.setEnabled(false);
+					}
 				}				
 			}			
 		});		
 	}
 
+	/**
+	 * When unsubscribing from a topic has failed this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param topic to unsubscribe from
+	 * @param cause of failure
+	 */
 	@Override
 	public void unsubscribeFailed(String topic, String cause) {
 		final ConnectionComposite instance = this;
@@ -262,6 +304,11 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		});		
 	}
 
+	/**
+	 * When publishing to a topic was successful this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param topic to publish
+	 */
 	@Override
 	public void published(String topic) {
 		final ConnectionComposite instance = this;
@@ -275,6 +322,12 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		});		
 	}
 
+	/**
+	 * When publishing to a topic has failed this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param topic to publish
+	 * @param cause of failure
+	 */
 	@Override
 	public void publishFailed(String topic, String cause) {
 		final ConnectionComposite instance = this;
@@ -290,7 +343,12 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 
 	// ConnectionEvents implementation
 	// all methods may be called from a non UI thread
-	
+
+	/**
+	 * When a connection gets lost this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param cause
+	 */
 	@Override
 	public void connectionLost(String cause) {
 		final ConnectionComposite instance = this;
@@ -298,12 +356,24 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Connection lost! [" + cause + "]");			
+					messages.add("Connection lost! [" + cause + "]");
+					btnConnect.setEnabled(true);
+					btnDisconnect.setEnabled(false);
+					btnPublish.setEnabled(false);
+					btnSubscribe.setEnabled(false);
+					btnUnsubscribe.setEnabled(false);
+					subscriptions.removeAll();
 				}				
 			}			
 		});		
 	}
 
+	/**
+	 * A completed delivery of a message should be announced with this method.
+	 * The caller may reside on a different thread.
+	 * @param topic of the delivered message
+	 * @param message
+	 */
 	@Override
 	public void deliveryComplete(String topic, String message) {
 		final ConnectionComposite instance = this;
@@ -317,6 +387,12 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		});		
 	}
 
+	/**
+	 * When a new message has arrived this method should be called.
+	 * The caller may reside on a different thread.
+	 * @param topic of the new message
+	 * @param message
+	 */
 	@Override
 	public void messageArrived(String topic, String message) {
 		final ConnectionComposite instance = this;
