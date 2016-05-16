@@ -76,7 +76,7 @@ public class MainWindow {
 		Composite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
 		page.pack();
 		item.setControl(page);
-		item.addDisposeListener(new TabDisposeListener(connection));
+		item.addDisposeListener(new TabDisposeListener(connection, (ActionResult) page));
 		tabFolder.setSelection(item);
 		tabFolder.pack();
 		shell.pack();

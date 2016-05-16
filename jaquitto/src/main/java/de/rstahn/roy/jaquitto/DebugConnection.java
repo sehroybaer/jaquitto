@@ -10,27 +10,27 @@ public class DebugConnection implements Connection {
 	}
 
 	@Override
-	public void connect() {
+	public void connect(ActionResult actionResult) {
 		System.out.println("Connected.");
 	}
 
 	@Override
-	public void disconnect() {
+	public void disconnect(ActionResult actionResult) {
 		System.out.println("Disconnected.");
 	}
 
 	@Override
-	public void publish(String topic, String message) {
-		System.out.println(message + " published to "  + topic);
+	public void publish(String topic, String message, int qos, ActionResult actionResult) {
+		System.out.println(message + " published to "  + topic + "[qos=" + qos + "]");
 	}
 
 	@Override
-	public void subscribe(String topic) {
-		System.out.println("Topic " + topic + " subscribed.");
+	public void subscribe(String topic, int qos, ActionResult actionResult) {
+		System.out.println("Topic " + topic + " subscribed." + "[qos=" + qos + "]");
 	}
 
 	@Override
-	public void unsubscribe(String topic) {
+	public void unsubscribe(String topic, ActionResult actionResult) {
 		System.out.println("Topic " + topic + " unsubscribed.");
 	}
 

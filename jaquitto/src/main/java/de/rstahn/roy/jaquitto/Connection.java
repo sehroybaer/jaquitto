@@ -1,11 +1,11 @@
 package de.rstahn.roy.jaquitto;
 
 public interface Connection {
-	void connect();
-	void disconnect();
-	void publish(String topic, String message);
-	void subscribe(String topic);
-	void unsubscribe(String topic);
+	void connect(ActionResult actionResult);
+	void disconnect(ActionResult actionResult);
+	void publish(String topic, String message, int qos, ActionResult actionResult);
+	void subscribe(String topic, int qos, ActionResult actionResult);
+	void unsubscribe(String topic, ActionResult actionResult);
 	String getServerUrlAsString();
 	String getName();
 }

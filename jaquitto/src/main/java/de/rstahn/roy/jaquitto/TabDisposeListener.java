@@ -6,13 +6,15 @@ import org.eclipse.swt.events.DisposeListener;
 public class TabDisposeListener implements DisposeListener{
 
 	private final Connection connection;
+	private final ActionResult actionResult;
 	
-	public TabDisposeListener(Connection connection) {
+	public TabDisposeListener(Connection connection, ActionResult actionResult) {
 		this.connection = connection;
+		this.actionResult = actionResult;
 	}
 	@Override
 	public void widgetDisposed(DisposeEvent e) {
-		connection.disconnect();
+		connection.disconnect(actionResult);
 		System.out.println("Tab was disposed. " + connection.getName() + " will be disconnected.");		
 	}
 

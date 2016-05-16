@@ -10,10 +10,11 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
 
-public class ConnectionComposite extends Composite{
+public class ConnectionComposite extends Composite implements ActionResult{
 	private Text txtSubscibeTopic;
 	private Text txtPublishTopic;
 	private Text txtPublishPayload;
+	private final List messages;
 	
 	public ConnectionComposite(Composite parent, int style, Connection connection) {
 		super(parent, style);
@@ -61,8 +62,8 @@ public class ConnectionComposite extends Composite{
 		final List subscriptions = new List(this, SWT.BORDER);
 		subscriptions.setBounds(321, 67, 119, 228);
 		
-		final List messageList = new List(this, SWT.BORDER);
-		messageList.setBounds(10, 163, 302, 132);
+		messages = new List(this, SWT.BORDER);
+		messages.setBounds(10, 163, 302, 132);
 		
 		final Label lblMessages = new Label(this, SWT.NONE);
 		lblMessages.setBounds(10, 146, 55, 15);
@@ -83,10 +84,11 @@ public class ConnectionComposite extends Composite{
 		lblPayload.setText("Payload:");
 		
 		final Connection con = connection;
+		final ConnectionComposite instance = this;
 		btnConnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				con.connect();
+				con.connect(instance);
 				btnConnect.setEnabled(false);
 				btnDisconnect.setEnabled(true);
 				btnPublish.setEnabled(true);
@@ -97,7 +99,7 @@ public class ConnectionComposite extends Composite{
 		btnDisconnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				con.disconnect();
+				con.disconnect(instance);
 				btnConnect.setEnabled(true);
 				btnDisconnect.setEnabled(false);
 				btnPublish.setEnabled(false);
@@ -112,7 +114,7 @@ public class ConnectionComposite extends Composite{
 			public void widgetSelected(SelectionEvent e) {
 				final String topic = txtSubscibeTopic.getText();
 				if(!topic.isEmpty()) {
-					con.subscribe(topic);
+					con.subscribe(topic, 1, instance);
 					subscriptions.add(topic);
 					btnUnsubscribe.setEnabled(true);
 				}
@@ -128,7 +130,7 @@ public class ConnectionComposite extends Composite{
 				}
 				int selection = subscriptions.getSelectionIndex();
 				final String topic = subscriptions.getItem(selection);
-				con.unsubscribe(topic);
+				con.unsubscribe(topic, instance);
 				subscriptions.remove(selection);
 				if(subscriptions.getItemCount() == 0) {
 					btnUnsubscribe.setEnabled(false);
@@ -142,10 +144,60 @@ public class ConnectionComposite extends Composite{
 				final String topic = txtPublishTopic.getText();
 				final String message = txtPublishPayload.getText();
 				if(!topic.isEmpty() && !message.isEmpty()) {
-					con.publish(topic, message);
+					con.publish(topic, message, 1, instance);
 				}
 			}
 		});
 
+	}
+
+	@Override
+	public void connected() {
+		messages.add("Connected.");		
+	}
+
+	@Override
+	public void connectFailed(String cause) {
+		messages.add("Connecting failed: " + cause);		
+	}
+
+	@Override
+	public void disconnected() {
+		messages.add("Disconnected.");		
+	}
+
+	@Override
+	public void disconnectedFailed(String cause) {
+		messages.add("Disconnecting failed: " + cause);		
+	}
+
+	@Override
+	public void subscribed(String topic) {
+		messages.add("Subscribed to topic " + topic);		
+	}
+
+	@Override
+	public void subscribeFailed(String topic, String cause) {
+		messages.add("Subscripting failed to topic " + topic + "[" + cause + "]");		
+	}
+
+	@Override
+	public void unsubscribed(String topic) {
+		messages.add("Topic " + topic + "unsubscribed.");		
+	}
+
+	@Override
+	public void unsubscribeFailed(String topic, String cause) {
+		messages.add("Unsubscribing to topic " + topic + " failed! [" + cause + "]");		
+	}
+
+	@Override
+	public void published(String topic) {
+		messages.add("Published to topic " + topic);		
+	}
+
+	@Override
+	public void publishFailed(String topic, String cause) {
+		messages.add("Publishing to topic " + topic + " failed! [" + cause + "]");		
 	}
 }
