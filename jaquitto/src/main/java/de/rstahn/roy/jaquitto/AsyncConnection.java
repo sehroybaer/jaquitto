@@ -3,6 +3,7 @@ package de.rstahn.roy.jaquitto;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -123,7 +124,7 @@ public class AsyncConnection implements Connection {
 		} else {
 			this.opt = conOpts;
 		}
-	}	
+	}
 	
 	public static String packTopics(String[] topics) {
 		StringBuilder builder = new StringBuilder();
@@ -141,6 +142,12 @@ public class AsyncConnection implements Connection {
 
 	
 	// Implementation of Connection interface
+	
+	@Override
+	public void setConnectionCallback(ConnectionEvents connectionEvents) {
+		ConnectionCallback callback = new ConnectionCallback(connectionEvents);
+		client.setCallback(callback);
+	}
 	
 	@Override
 	public void connect(ActionResult actionResult) {
@@ -208,6 +215,20 @@ public class AsyncConnection implements Connection {
 	@Override
 	public String getName() {
 		return client.getClientId();
+	}
+	
+	public static AsyncConnection createDefaultAsyncConnection(String server, String clientId) {
+		AsyncConnection connection = null;
+		try {
+			MqttAsyncClient client = new MqttAsyncClient(server, clientId);
+			MqttConnectOptions options = new MqttConnectOptions();
+			connection = new AsyncConnection(client, options);
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return connection;
 	}
 
 }

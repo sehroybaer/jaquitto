@@ -10,7 +10,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -70,16 +69,17 @@ public class MainWindow {
 			System.out.println("  name = " + result.get("name"));
 			System.out.println("  url  = " + result.get("url"));
 		}
-		DebugConnection connection = new DebugConnection(result.get("name"), result.get("url"));
+		Connection connection = AsyncConnection.createDefaultAsyncConnection(result.get("url"), result.get("name")); 
+				// new DebugConnection(result.get("name"), result.get("url"));
 		final CTabItem item = new CTabItem(tabFolder, SWT.CLOSE);
 		item.setText(connection.getName());
-		Composite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
+		ConnectionComposite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
+		connection.setConnectionCallback(page);
 		page.pack();
 		item.setControl(page);
-		item.addDisposeListener(new TabDisposeListener(connection, (ActionResult) page));
+		item.addDisposeListener(new TabDisposeListener(connection, page));
 		tabFolder.setSelection(item);
 		tabFolder.pack();
 		shell.pack();
 	}
-
 }

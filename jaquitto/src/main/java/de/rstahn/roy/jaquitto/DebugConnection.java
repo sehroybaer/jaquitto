@@ -44,4 +44,9 @@ public class DebugConnection implements Connection {
 		return name;
 	}
 
+	@Override
+	public void setConnectionCallback(ConnectionEvents connectionEvents) {
+		System.out.println("Connection callback set.");		
+	}
+
 }
