@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
 
-public class ConnectionComposite extends Composite implements ActionResult{
+public class ConnectionComposite extends Composite implements ActionResult, ConnectionEvents{
 	private Text txtSubscibeTopic;
 	private Text txtPublishTopic;
 	private Text txtPublishPayload;
@@ -199,5 +199,21 @@ public class ConnectionComposite extends Composite implements ActionResult{
 	@Override
 	public void publishFailed(String topic, String cause) {
 		messages.add("Publishing to topic " + topic + " failed! [" + cause + "]");		
+	}
+
+	// ConnectionEvents implementation:
+	@Override
+	public void connectionLost(String cause) {
+		messages.add("Connection lost! [" + cause + "]");		
+	}
+
+	@Override
+	public void deliveryComplete(String topic, String message) {
+		messages.add(message + " to topic " + topic + " was delivered.");		
+	}
+
+	@Override
+	public void messageArrived(String topic, String message) {
+		messages.add("Message -" + message + "- arrived to topic " + topic);		
 	}
 }
