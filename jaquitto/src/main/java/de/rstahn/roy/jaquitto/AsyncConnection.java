@@ -3,7 +3,6 @@ package de.rstahn.roy.jaquitto;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -13,8 +12,8 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 public class AsyncConnection implements Connection {
 	private MqttConnectOptions opt;
 	private final IMqttAsyncClient client;
-	private MqttCallback callback;
 	
+	// Inner ActionListener classes
 	public class ConnectActionListener implements IMqttActionListener {
 		
 		private final ActionResult actionResult;
@@ -115,6 +114,8 @@ public class AsyncConnection implements Connection {
 		}		
 	}
 	
+	// Definition of AsyncConnection
+	
 	public AsyncConnection(IMqttAsyncClient client, MqttConnectOptions conOpts) {
 		this.client = client;
 		if(conOpts == null) {
@@ -138,6 +139,9 @@ public class AsyncConnection implements Connection {
 		return builder.toString();			
 	}
 
+	
+	// Implementation of Connection interface
+	
 	@Override
 	public void connect(ActionResult actionResult) {
 		try {
