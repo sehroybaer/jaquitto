@@ -65,10 +65,10 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 		lblSubscribeTopic.setBounds(321, 20, 55, 15);
 		lblSubscribeTopic.setText("Topic:");
 
-		subscriptions = new List(this, SWT.BORDER);
+		subscriptions = new List(this, SWT.BORDER | SWT.V_SCROLL);
 		subscriptions.setBounds(321, 67, 119, 228);
 
-		messages = new List(this, SWT.BORDER);
+		messages = new List(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		messages.setBounds(10, 163, 302, 132);
 
 		final Label lblMessages = new Label(this, SWT.NONE);
@@ -146,7 +146,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 
 	/**
 	 * After the connection is successfully established
-	 * this method will should be called.
+	 * this method should be called.
 	 * The caller may reside on a different thread.
 	 */
 	@Override
