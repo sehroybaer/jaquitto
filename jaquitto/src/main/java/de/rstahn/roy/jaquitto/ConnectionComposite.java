@@ -236,7 +236,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Subscribed to topic " + topic);
+					messages.add("Subscribed to topic \"" + topic + "\"");
 					subscriptions.add(topic);
 					btnUnsubscribe.setEnabled(true);
 				}				
@@ -257,7 +257,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Subscripting failed to topic " + topic + "[" + cause + "]");				
+					messages.add("Subscribing to topic \"" + topic + "\" failed! [" + cause + "]");				
 				}				
 			}			
 		});		
@@ -275,7 +275,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Topic " + topic + "unsubscribed.");
+					messages.add("Topic \"" + topic + "\" unsubscribed.");
 					subscriptions.remove(topic);
 					if(subscriptions.getItemCount() == 0) {
 						btnUnsubscribe.setEnabled(false);
@@ -298,7 +298,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Unsubscribing to topic " + topic + " failed! [" + cause + "]");				
+					messages.add("Unsubscribing from topic \"" + topic + "\" failed! [" + cause + "]");				
 				}				
 			}			
 		});		
@@ -316,7 +316,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Published to topic " + topic);			
+					messages.add("Published to topic \"" + topic + "\"");			
 				}				
 			}			
 		});		
@@ -335,7 +335,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Publishing to topic " + topic + " failed! [" + cause + "]");			
+					messages.add("Publishing to topic \"" + topic + "\" failed! [" + cause + "]");			
 				}				
 			}			
 		});		
@@ -372,16 +372,15 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 	 * A completed delivery of a message should be announced with this method.
 	 * The caller may reside on a different thread.
 	 * @param topic of the delivered message
-	 * @param message
 	 */
 	@Override
-	public void deliveryComplete(String topic, String message) {
+	public void deliveryComplete(String topic) {
 		final ConnectionComposite instance = this;
 		getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add(message + " to topic " + topic + " was delivered.");				
+					messages.add("Message to topic \"" + topic + "\" was delivered.");				
 				}				
 			}			
 		});		
@@ -400,7 +399,7 @@ public class ConnectionComposite extends Composite implements ActionResult, Conn
 			@Override
 			public void run() {
 				if (!instance.isDisposed()) {
-					messages.add("Message -" + message + "- arrived to topic " + topic);			
+					messages.add("Message \"" + message + "\" arrived for topic \"" + topic + "\"");			
 				}				
 			}			
 		});		
