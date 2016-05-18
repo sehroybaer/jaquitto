@@ -128,6 +128,9 @@ public class AsyncConnection implements Connection {
 
 	public static String packTopics(String[] topics) {
 		StringBuilder builder = new StringBuilder();
+		if(topics == null) {
+			return null;
+		}
 		if(topics.length == 0) {
 			return "unknown";
 		}

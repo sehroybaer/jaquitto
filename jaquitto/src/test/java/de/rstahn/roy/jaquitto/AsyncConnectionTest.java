@@ -12,12 +12,222 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Before;
 import org.junit.Test;
 
 public class AsyncConnectionTest {
 	
 	AsyncConnection connection;
+	TestActionResult actionResult;
+	
+	private class TestActionResult implements ActionResult {
+
+		private boolean connected = false;
+		private boolean subscribed = false;
+		private boolean published = false;
+		private String cause;
+		private String topic;
+		
+		public boolean isConnected() {
+			return connected;
+		}
+		
+		public boolean hasSubscribed() {
+			return subscribed;
+		}
+		
+		public boolean hasPublished() {
+			return published;
+		}
+		
+		public String getCause() {
+			return cause;
+		}
+		
+		public String getTopic() {
+			return topic;
+		}
+		
+		@Override
+		public void connected() {
+			connected = true;			
+		}
+
+		@Override
+		public void connectFailed(String cause) {
+			connected = false;
+			this.cause = cause;			
+		}
+
+		@Override
+		public void disconnected() {
+			connected = false;
+			published = false;
+			subscribed = false;
+			cause = null;
+			topic = null;			
+		}
+
+		@Override
+		public void disconnectedFailed(String cause) {
+			this.cause = cause;			
+		}
+
+		@Override
+		public void subscribed(String topic) {
+			subscribed = true;
+			this.topic = topic;			
+		}
+
+		@Override
+		public void subscribeFailed(String topic, String cause) {
+			this.cause = cause;			
+		}
+
+		@Override
+		public void unsubscribed(String topic) {
+			subscribed = false;
+			this.topic = topic;			
+		}
+
+		@Override
+		public void unsubscribeFailed(String topic, String cause) {
+			this.topic = topic;
+			this.cause = cause;			
+		}
+
+		@Override
+		public void published(String topic) {
+			published = true;
+			this.topic = topic;			
+		}
+
+		@Override
+		public void publishFailed(String topic, String cause) {
+			this.topic = topic;
+			this.cause = cause;			
+		}		
+	}
+	
+	private class TestConnectionEvents implements ConnectionEvents {
+
+		private String causeOfLostConnection;
+		private String topic;
+		private String message;
+		
+		public String getCause() {
+			return causeOfLostConnection;
+		}
+		
+		public String getTopic() {
+			return topic;
+		}
+		
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
+		public void connectionLost(String cause) {
+			this.causeOfLostConnection = cause;			
+		}
+
+		@Override
+		public void deliveryComplete(String topic) {
+			this.topic = topic;			
+		}
+
+		@Override
+		public void messageArrived(String topic, String message) {
+			this.topic = topic;
+			this.message = message;			
+		}
+		
+	}
+	
+	private class TestToken implements IMqttToken {
+		private final String topic;
+		private final String message;
+		
+		public TestToken(String topic, String message) {
+			this.topic = topic;
+			this.message = message;
+		}
+
+		@Override
+		public void waitForCompletion() throws MqttException {
+			throw new UnsupportedOperationException();			
+		}
+
+		@Override
+		public void waitForCompletion(long timeout) throws MqttException {
+			throw new UnsupportedOperationException();			
+		}
+
+		@Override
+		public boolean isComplete() {
+			return true;
+		}
+
+		@Override
+		public MqttException getException() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setActionCallback(IMqttActionListener listener) {
+			throw new UnsupportedOperationException();			
+		}
+
+		@Override
+		public IMqttActionListener getActionCallback() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public IMqttAsyncClient getClient() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String[] getTopics() {
+			String topics[] = {topic};
+			return topics;
+		}
+
+		@Override
+		public void setUserContext(Object userContext) {
+			throw new UnsupportedOperationException();		
+		}
+
+		@Override
+		public Object getUserContext() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int getMessageId() {
+			return 0;
+		}
+
+		@Override
+		public int[] getGrantedQos() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean getSessionPresent() {
+			return false;
+		}
+
+		@Override
+		public MqttWireMessage getResponse() {
+			throw new UnsupportedOperationException();
+		}
+		
+	}
 	
 	private class TestActionListener implements IMqttActionListener {
 		
@@ -45,6 +255,7 @@ public class AsyncConnectionTest {
 		private boolean connected = false;
 		private String serverUrl = "tcp://localhost:1883";
 		private String clientId = "Test Client";
+		private MqttCallback callback;
 
 		@Override
 		public IMqttToken connect() throws MqttException, MqttSecurityException {
@@ -68,6 +279,7 @@ public class AsyncConnectionTest {
 		@Override
 		public IMqttToken connect(MqttConnectOptions options, Object userContext, IMqttActionListener callback)
 				throws MqttException, MqttSecurityException {
+			connected = true;
 			callback.onSuccess(null);
 			return null;
 		}
@@ -132,99 +344,95 @@ public class AsyncConnectionTest {
 		@Override
 		public IMqttDeliveryToken publish(String topic, byte[] payload, int qos, boolean retained)
 				throws MqttException, MqttPersistenceException {
-			// TODO Auto-generated method stub
-			return null;
+			// not interested in
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttDeliveryToken publish(String topic, byte[] payload, int qos, boolean retained, Object userContext,
 				IMqttActionListener callback) throws MqttException, MqttPersistenceException {
-			// TODO Auto-generated method stub
+			callback.onSuccess(new TestToken(topic, new String(payload)));
 			return null;
 		}
 
 		@Override
 		public IMqttDeliveryToken publish(String topic, MqttMessage message)
 				throws MqttException, MqttPersistenceException {
-			// TODO Auto-generated method stub
-			return null;
+			// not interested in
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttDeliveryToken publish(String topic, MqttMessage message, Object userContext,
-				IMqttActionListener callback) throws MqttException, MqttPersistenceException {
-			// TODO Auto-generated method stub
+				IMqttActionListener callback) throws MqttException, MqttPersistenceException { 
+			callback.onSuccess(new TestToken(topic, new String(message.getPayload())));
 			return null;
 		}
 
 		@Override
 		public IMqttToken subscribe(String topicFilter, int qos) throws MqttException {
-			// TODO Auto-generated method stub
-			return null;
+			// will not be used
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttToken subscribe(String topicFilter, int qos, Object userContext, IMqttActionListener callback)
 				throws MqttException {
-			// TODO Auto-generated method stub
+			callback.onSuccess(new TestToken(topicFilter, "some message"));
 			return null;
 		}
 
 		@Override
 		public IMqttToken subscribe(String[] topicFilters, int[] qos) throws MqttException {
-			// TODO Auto-generated method stub
-			return null;
+			// will not be used
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback)
 				throws MqttException {
-			// TODO Auto-generated method stub
-			return null;
+			// will not be used
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttToken unsubscribe(String topicFilter) throws MqttException {
-			// TODO Auto-generated method stub
-			return null;
+			// will not be used, throw
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttToken unsubscribe(String[] topicFilters) throws MqttException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public IMqttToken unsubscribe(String topicFilter, Object userContext, IMqttActionListener callback)
 				throws MqttException {
-			// TODO Auto-generated method stub
+			callback.onSuccess(new TestToken(topicFilter, "testmessage"));
 			return null;
 		}
 
 		@Override
 		public IMqttToken unsubscribe(String[] topicFilters, Object userContext, IMqttActionListener callback)
 				throws MqttException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void setCallback(MqttCallback callback) {
-			// TODO Auto-generated method stub
+			this.callback = callback;
 			
 		}
 
 		@Override
 		public IMqttDeliveryToken[] getPendingDeliveryTokens() {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void close() throws MqttException {
-			// TODO Auto-generated method stub
-			
+			throw new UnsupportedOperationException();
 		}
 		
 	}
@@ -234,51 +442,85 @@ public class AsyncConnectionTest {
 		MqttConnectOptions conOpts = new MqttConnectOptions();
 		TestClient client = new TestClient();		
 		connection = new AsyncConnection(client, conOpts);
+		actionResult = new TestActionResult();
 	}
 	
 	@Test
-	public void testPackTopics() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetConnectionCallback() {
-		fail("Not yet implemented");
+	public void testPackTopics() {		
+		String nullTopic = AsyncConnection.packTopics(null);
+		assertNull(nullTopic);
+		
+		String emptyTopics[] = {};
+		String emptyTopic = AsyncConnection.packTopics(emptyTopics);
+		assertThat(emptyTopic, is("unknown"));
+		
+		String topics[] = {"one", "two" , "three"};
+		String expectedTopic = "one;two;three";
+		String actualTopic = AsyncConnection.packTopics(topics);
+		assertThat(actualTopic, is(expectedTopic));
 	}
 
 	@Test
 	public void testConnect() {
-		fail("Not yet implemented");
+		connection.connect(actionResult);
+		assertThat(actionResult.isConnected(), is(true));
 	}
 
 	@Test
 	public void testDisconnect() {
-		fail("Not yet implemented");
+		connection.connect(actionResult);
+		assertThat(actionResult.isConnected(), is(true));
+		connection.disconnect(actionResult);
+		assertThat(actionResult.isConnected(), is(false));
 	}
 
 	@Test
 	public void testPublish() {
-		fail("Not yet implemented");
+		connection.connect(actionResult);
+		assertThat(actionResult.isConnected(), is(true));
+		connection.publish("test_", "testmessage_", 1, actionResult);
+		assertThat(actionResult.hasPublished(), is(true));
+		assertThat(actionResult.getTopic(), is("test_"));
+		connection.disconnect(actionResult);
+		assertThat(actionResult.isConnected(), is(false));
 	}
 
 	@Test
 	public void testSubscribe() {
-		fail("Not yet implemented");
+		connection.connect(actionResult);
+		assertThat(actionResult.isConnected(), is(true));
+		connection.subscribe("subscribe_test", 1, actionResult);
+		assertThat(actionResult.hasSubscribed(), is(true));
+		assertThat(actionResult.getTopic(), is("subscribe_test"));
+		connection.disconnect(actionResult);
+		assertThat(actionResult.isConnected(), is(false));
 	}
 
 	@Test
 	public void testUnsubscribe() {
-		fail("Not yet implemented");
+		connection.connect(actionResult);
+		assertThat(actionResult.isConnected(), is(true));
+		connection.subscribe("unsubscribe test", 1, actionResult);
+		assertThat(actionResult.hasSubscribed(), is(true));
+		connection.unsubscribe("unsubscribe test", actionResult);
+		assertThat(actionResult.hasSubscribed(), is(false));
+		assertThat(actionResult.getTopic(), is("unsubscribe test"));
+		connection.disconnect(actionResult);
+		assertThat(actionResult.isConnected(), is(false));
 	}
 
 	@Test
 	public void testGetServerUrlAsString() {
-		fail("Not yet implemented");
+		String actualServerUrl = connection.getServerUrlAsString();
+		String expectedServerUrl = "tcp://localhost:1883";
+		assertThat(actualServerUrl, is(expectedServerUrl));
 	}
 
 	@Test
 	public void testGetName() {
-		fail("Not yet implemented");
+		String actualConnectionName = connection.getName();
+		String expectedConnectionName = "Test Client";
+		assertThat(actualConnectionName, is(expectedConnectionName));
 	}
 
 }
