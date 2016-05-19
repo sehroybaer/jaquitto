@@ -14,7 +14,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * After the connection is successfully established this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 */
 	@Override
 	public void connected() {
@@ -35,7 +35,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When a connection can't be established this method should be called. 
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 */
 	@Override
 	public void connectFailed(String cause) {
@@ -51,7 +51,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When the connection was separated this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 */
 	@Override
 	public void disconnected() {
@@ -73,7 +73,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When the connection couldn't be separated this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 * @param cause of the failure.
 	 */
 	@Override
@@ -90,7 +90,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When the subscription to a topic was successful this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 * @param topic of the subscription
 	 */
 	@Override
@@ -109,7 +109,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When the subscription to a topic failed this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 * @param topic of subscription
 	 * @param cause of failure
 	 */
@@ -128,7 +128,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When unsubscribing from a topic was successful this method should be called.
-	 * The caller may reside on a different thread. 
+	 * The caller may reside on a non-UI thread. 
 	 * @param topic to unsubscribe from
 	 */
 	@Override
@@ -149,7 +149,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When unsubscribing from a topic has failed this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 * @param topic to unsubscribe from
 	 * @param cause of failure
 	 */
@@ -168,7 +168,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When publishing to a topic was successful this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 * @param topic to publish
 	 */
 	@Override
@@ -186,7 +186,7 @@ public class ConnectionActor implements ActionResult {
 
 	/**
 	 * When publishing to a topic has failed this method should be called.
-	 * The caller may reside on a different thread.
+	 * The caller may reside on a non-UI thread.
 	 * @param topic to publish
 	 * @param cause of failure
 	 */
