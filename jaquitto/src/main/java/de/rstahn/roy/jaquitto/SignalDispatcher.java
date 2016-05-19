@@ -4,6 +4,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Text;
 
 public interface SignalDispatcher {
 	void addSelectionListener(String buttonName, SelectionListener listener);
@@ -16,8 +17,8 @@ public interface SignalDispatcher {
 	String getSelectedStringFromListbox(String listboxName);
 	boolean listboxIsEmpty(String listboxName);
 	
-	void addButton(Button button);
-	void addControl(Control control);
-	void addListbox(List listBox);
-
+	void addButton(String buttonName, Button button);
+	void addControl(String controlName, Control control);
+	void addListbox(String listboxName, List listBox);
+	void addTextfield(String textfieldName, Text textField);
 }
