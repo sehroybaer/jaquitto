@@ -19,6 +19,51 @@ public class ConnectionController {
 			public void widgetSelected(SelectionEvent e) {
 				connection.connect(actions);
 			}			
-		});		
+		});
+		
+		dispatcher.addSelectionListener("Disconnect Button", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				connection.disconnect(actions);
+			}
+		});
+
+		dispatcher.addSelectionListener("Publish Button", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final String topic = dispatcher.getTextFieldContent("Publish Topic");
+				final String payload = dispatcher.getTextFieldContent("Publish Payload");
+				final int qos = 1;
+				if(isNotNullOrEmpty(topic) && isNotNullOrEmpty(payload)) {
+					connection.publish(topic, payload, qos, actions);
+				}
+			}
+		});
+
+		dispatcher.addSelectionListener("Subscribe Button", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final String topic = dispatcher.getSelectedStringFromListbox("Subscriptions");
+				final int qos = 1;
+				if(isNotNullOrEmpty(topic)) {
+					connection.subscribe(topic, qos, actions);
+				}
+			}
+		});
+
+		dispatcher.addSelectionListener("Unsubscribe Button", new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final String topic = dispatcher.getSelectedStringFromListbox("Subscriptions");
+				if(isNotNullOrEmpty(topic)) { 
+					connection.unsubscribe(topic, actions);
+				}
+			}
+		});
+
+	}
+	
+	public static boolean isNotNullOrEmpty(String text) {
+		return text != null && !text.isEmpty();
 	}
 }
