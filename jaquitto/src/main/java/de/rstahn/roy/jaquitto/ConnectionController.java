@@ -21,12 +21,13 @@ public class ConnectionController implements SignalDispatcher {
 	final private Map<String, List> listboxes = new HashMap<String, List>();
 	final private Map<String, Text> textfields = new HashMap<String, Text>();
 
-	public ConnectionController(Connection connection, Widget widget) {
+	public ConnectionController(Widget widget) {
 		this.actions = new ConnectionActor(this, widget);
-		setupButtonPressedListener(connection, this);
 	}
 
-	private void setupButtonPressedListener(final Connection connection, final SignalDispatcher dispatcher) {
+	@Override
+	public void setupButtonPressedListener(final Connection connection) {
+		final SignalDispatcher dispatcher = this;
 		dispatcher.addSelectionListener("Connect Button", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -56,7 +57,7 @@ public class ConnectionController implements SignalDispatcher {
 		dispatcher.addSelectionListener("Subscribe Button", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				final String topic = dispatcher.getSelectedStringFromListbox("Subscriptions");
+				final String topic = dispatcher.getTextFieldContent("Subscribe Topic");
 				final int qos = 1;
 				if(isNotNullOrEmpty(topic)) {
 					connection.subscribe(topic, qos, actions);

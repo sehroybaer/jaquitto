@@ -125,4 +125,10 @@ public class ConnectionCompositeDispatcher implements SignalDispatcher {
 		textfields.put(textfieldName, textField);
 		controls.put(textfieldName, textField);
 	}
+
+	@Override
+	public void setupButtonPressedListener(Connection connection) {
+		// TODO Auto-generated method stub
+		
+	}
 }

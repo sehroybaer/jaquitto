@@ -15,7 +15,7 @@ public class DebugConnection implements Connection {
 	}
 
 	@Override
-	public void disconnect(ActionResult actionResult) {
+	public void disconnect(DisconnectActionResult actionResult) {
 		System.out.println("Disconnected.");
 	}
 

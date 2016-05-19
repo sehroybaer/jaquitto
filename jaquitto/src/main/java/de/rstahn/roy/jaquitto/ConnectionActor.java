@@ -101,7 +101,7 @@ public class ConnectionActor implements ActionResult {
 				if (!widget.isDisposed()) {
 					dispatcher.addStringToListbox("Message Box", "Subscribed to topic \"" + topic + "\"");
 					dispatcher.addStringToListbox("Subscriptions", topic);
-					dispatcher.setEnabled("Unsubscribe Button", false);
+					dispatcher.setEnabled("Unsubscribe Button", true);
 				}				
 			}			
 		});			

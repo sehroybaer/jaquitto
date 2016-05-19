@@ -17,6 +17,25 @@ public class MainWindow {
 	private Shell shell;
 	private CTabFolder tabFolder;
 	
+	private class MainWindowDisconnectAction implements DisconnectActionResult {
+		
+		private final String itemName;
+		
+		public MainWindowDisconnectAction(String itemName) {
+			this.itemName = itemName;
+		}
+
+		@Override
+		public void disconnected() {
+			System.out.println(itemName + " disconnected.");			
+		}
+
+		@Override
+		public void disconnectedFailed(String cause) {
+			System.out.println("Disconnecting " + itemName + " failed!");			
+		}		
+	}
+	
 	public void open() {
 		Display display = new Display(); //Display.getDefault();
 		createShell();
@@ -74,10 +93,11 @@ public class MainWindow {
 		final CTabItem item = new CTabItem(tabFolder, SWT.CLOSE);
 		item.setText(connection.getName());
 		ConnectionComposite page = new ConnectionComposite(tabFolder, SWT.NONE, connection);
-		connection.setConnectionCallback(page);
+		//connection.setConnectionCallback(page);
 		page.pack();
 		item.setControl(page);
-		item.addDisposeListener(new TabDisposeListener(connection, page));
+		final MainWindowDisconnectAction disconnectAction = new MainWindowDisconnectAction(connection.getName());
+		item.addDisposeListener(new TabDisposeListener(connection, disconnectAction));
 		tabFolder.setSelection(item);
 		tabFolder.pack();
 		shell.pack();

@@ -35,9 +35,9 @@ public class AsyncConnection implements Connection {
 	}
 
 	public class DisconnectActionListener implements IMqttActionListener {
-		private final ActionResult actionResult;
+		private final DisconnectActionResult actionResult;
 
-		public DisconnectActionListener(ActionResult actionResult) {
+		public DisconnectActionListener(DisconnectActionResult actionResult) {
 			this.actionResult = actionResult;
 		}
 
@@ -166,7 +166,7 @@ public class AsyncConnection implements Connection {
 	}
 
 	@Override
-	public void disconnect(ActionResult actionResult) {
+	public void disconnect(DisconnectActionResult actionResult) {
 		try {
 			if(client.isConnected()) {
 				client.disconnect(null, new DisconnectActionListener(actionResult));

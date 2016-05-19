@@ -1,6 +1,6 @@
 package de.rstahn.roy.jaquitto;
 
-public interface ActionResult {
+public interface ActionResult extends DisconnectActionResult{
 	void connected();
 	void connectFailed(String cause);
 	void disconnected();

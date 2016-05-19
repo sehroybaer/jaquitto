@@ -21,4 +21,6 @@ public interface SignalDispatcher {
 	void addControl(String controlName, Control control);
 	void addListbox(String listboxName, List listBox);
 	void addTextfield(String textfieldName, Text textField);
+	
+	void setupButtonPressedListener(final Connection connection);
 }

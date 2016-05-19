@@ -6,9 +6,9 @@ import org.eclipse.swt.events.DisposeListener;
 public class TabDisposeListener implements DisposeListener{
 
 	private final Connection connection;
-	private final ActionResult actionResult;
+	private final DisconnectActionResult actionResult;
 	
-	public TabDisposeListener(Connection connection, ActionResult actionResult) {
+	public TabDisposeListener(Connection connection, DisconnectActionResult actionResult) {
 		this.connection = connection;
 		this.actionResult = actionResult;
 	}
